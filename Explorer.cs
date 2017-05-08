@@ -21,7 +21,7 @@ namespace VTools
       {
         hs.Add(table.TableName);
       }
-      Rsx.Dumb.FillABox(Box, hs, true, false);
+      Rsx.Dumb.UIControl.FillABox(Box, hs, true, false);
       Box.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
       Box.Text = set.Tables.OfType<DataTable>().First().TableName;
 
@@ -42,7 +42,14 @@ namespace VTools
       try
       {
         this.CurrentTable = set.Tables[Box.Text];
-        Rsx.Dumb.LinkBS(ref this.BS, CurrentTable, filterbox.Text, sortBox.Text);
+        Rsx.Dumb.BS.LinkBS(ref this.BS, CurrentTable, filterbox.Text, sortBox.Text);
+                foreach (DataGridViewColumn item in DGV.Columns)
+                {
+                    if (item.ValueType.Equals(typeof(byte[])))
+                        {
+                        DGV.Columns.RemoveAt(item.Index);
+                    }
+                }
       }
       catch (SystemException ex)
       {
@@ -71,19 +78,30 @@ namespace VTools
 
     private void DGV_CurrentCellChanged(object sender, EventArgs e)
     {
-      if (DGV.CurrentCell == null) return;
-      if (DGV.CurrentCell.ColumnIndex < 0) return;
-      if (this.BS.Current == null) return;
 
-      string columnName = DGV.Columns[DGV.CurrentCell.ColumnIndex].Name;
-      DataRow row = (this.BS.Current as DataRowView).Row;
-      if (row == null) return;
-      DataColumn colTable = row.Table.Columns[columnName];
-      if (colTable == null) return;
+            try
+            {
 
-      expBox.Text = colTable.Expression;
-      expBox.Tag = colTable;
-      columnBox.Text = columnName;
+                if (DGV.CurrentCell == null) return;
+                if (DGV.CurrentCell.ColumnIndex < 0) return;
+                if (this.BS.Current == null) return;
+
+                string columnName = DGV.Columns[DGV.CurrentCell.ColumnIndex].Name;
+                DataRow row = (this.BS.Current as DataRowView).Row;
+                if (row == null) return;
+                DataColumn colTable = row.Table.Columns[columnName];
+                if (colTable == null) return;
+
+                expBox.Text = colTable.Expression;
+                expBox.Tag = colTable;
+                columnBox.Text = columnName;
+            }
+            catch (Exception)
+            {
+
+                //throw;
+            }
+   
     }
 
     private void AddCol_Click(object sender, EventArgs e)
